@@ -1,9 +1,15 @@
 version: '3.8'
+
 services:
   fallback-app:
     image: nginx:alpine
+    container_name: custom-fallback-service
     volumes:
-      - ./404.html:/usr/share/nginx/html/404.html
-      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+      - ./404.html:/usr/share/nginx/html/404.html:ro
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
     networks:
       - coolify
+
+networks:
+  coolify:
+    external: true
