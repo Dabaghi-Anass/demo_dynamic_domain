@@ -11,6 +11,7 @@ services:
       - '5000'
     networks:
       - switchfy-net
+      - coolify # ← add this if app needs to be reachable by Traefik too
 
   nginx:
     build:
@@ -18,13 +19,27 @@ services:
       dockerfile: Dockerfile
     container_name: switchfy-nginx
     restart: unless-stopped
-    ports:
-      - '3050:80'
+    expose:
+      - '80' # ← expose, NOT ports (let Traefik handle routing)
     depends_on:
       - app
     networks:
       - switchfy-net
+      - coolify # ← MUST be on coolify network for Traefik to reach it
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.docker.network=coolify'
+      - 'traefik.http.services.switchfy-fallback.loadbalancer.server.port=80'
+
+      # Catchall for *.switchfy.ma — lowest priority
+      - 'traefik.http.routers.switchfy-catchall.rule=HostRegexp(`{subdomain:[a-z0-9-]+}.switchfy.ma`)'
+      - 'traefik.http.routers.switchfy-catchall.priority=1'
+      - 'traefik.http.routers.switchfy-catchall.entrypoints=https'
+      - 'traefik.http.routers.switchfy-catchall.tls=true'
+      - 'traefik.http.routers.switchfy-catchall.service=switchfy-fallback'
 
 networks:
   switchfy-net:
     driver: bridge
+  coolify:
+    external: true # ← reference Coolify's existing network
