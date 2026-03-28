@@ -32,7 +32,7 @@ services:
       - 'traefik.http.services.switchfy-fallback.loadbalancer.server.port=80'
 
       # Catchall for *.switchfy.ma — lowest priority
-      - 'traefik.http.routers.switchfy-catchall.rule=HostRegexp(`{subdomain:[a-z0-9-]+}.switchfy.ma`)'
+      - 'traefik.http.routers.switchfy-catchall.rule=HostSNI(`*`)'
       - 'traefik.http.routers.switchfy-catchall.priority=1'
       - 'traefik.http.routers.switchfy-catchall.entrypoints=https'
       - 'traefik.http.routers.switchfy-catchall.tls=true'
