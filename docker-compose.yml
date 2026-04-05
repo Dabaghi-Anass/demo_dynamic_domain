@@ -21,8 +21,6 @@ services:
     restart: unless-stopped
     expose:
       - '80' # ← expose, NOT ports (let Traefik handle routing)
-    depends_on:
-      - app
     networks:
       - switchfy-net
       - coolify # ← MUST be on coolify network for Traefik to reach it
