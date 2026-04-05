@@ -15,12 +15,18 @@ services:
       - traefik.enable=true
       - traefik.docker.network=coolify
       - traefik.http.services.switchfy-nginx.loadbalancer.server.port=80
-      # Catch-all route for any subdomain on *.switchfy.ma and *.staging.switchfy.ma
-      - 'traefik.http.routers.switchfy-catchall.rule=HostRegexp(`{subdomain:[a-z0-9-]+}.switchfy.ma`) || HostRegexp(`{subdomain:[a-z0-9-]+}.staging.switchfy.ma`)'
-      - traefik.http.routers.switchfy-catchall.priority=1
-      - traefik.http.routers.switchfy-catchall.entrypoints=https
-      - traefik.http.routers.switchfy-catchall.tls=true
-      - traefik.http.routers.switchfy-catchall.service=switchfy-nginx
+      # Route for *.switchfy.ma subdomains
+      - 'traefik.http.routers.switchfy-wildcard.rule=HostRegexp(`{subdomain:[a-z0-9-]+}.switchfy.ma`)'
+      - traefik.http.routers.switchfy-wildcard.priority=10
+      - traefik.http.routers.switchfy-wildcard.entrypoints=https
+      - traefik.http.routers.switchfy-wildcard.tls=true
+      - traefik.http.routers.switchfy-wildcard.service=switchfy-nginx
+      # Route for *.staging.switchfy.ma subdomains
+      - 'traefik.http.routers.switchfy-staging-wildcard.rule=HostRegexp(`{subdomain:[a-z0-9-]+}.staging.switchfy.ma`)'
+      - traefik.http.routers.switchfy-staging-wildcard.priority=10
+      - traefik.http.routers.switchfy-staging-wildcard.entrypoints=https
+      - traefik.http.routers.switchfy-staging-wildcard.tls=true
+      - traefik.http.routers.switchfy-staging-wildcard.service=switchfy-nginx
 
 networks:
   switchfy-net:
