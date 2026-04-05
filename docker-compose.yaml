@@ -1,26 +1,14 @@
 version: '3.9'
 
 services:
-  app:
-    build:
-      context: ./app
-      dockerfile: Dockerfile
-    container_name: switchfy-app
-    restart: unless-stopped
-    expose:
-      - '5000'
-    networks:
-      - switchfy-net
-      - coolify # ← add this if app needs to be reachable by Traefik too
-
   nginx:
     build:
       context: ./nginx
       dockerfile: Dockerfile
     container_name: switchfy-nginx
     restart: unless-stopped
-    expose:
-      - '80' # ← expose, NOT ports (let Traefik handle routing)
+    ports:
+      - 3007:80 # ← expose, NOT ports (let Traefik handle routing)
     networks:
       - switchfy-net
       - coolify # ← MUST be on coolify network for Traefik to reach it
