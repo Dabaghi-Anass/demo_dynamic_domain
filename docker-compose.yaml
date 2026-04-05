@@ -1,5 +1,4 @@
 version: '3.9'
-
 services:
   nginx:
     build:
@@ -8,24 +7,23 @@ services:
     container_name: switchfy-nginx
     restart: unless-stopped
     ports:
-      - 3007:80 # ← expose, NOT ports (let Traefik handle routing)
+      - '3007:80'
     networks:
       - switchfy-net
-      - coolify # ← MUST be on coolify network for Traefik to reach it
+      - coolify
     labels:
-      - 'traefik.enable=true'
-      - 'traefik.docker.network=coolify'
-      - 'traefik.http.services.switchfy-fallback.loadbalancer.server.port=80'
-
-      # Catchall for *.switchfy.ma — lowest priority
-      - 'traefik.http.routers.switchfy-catchall.rule=HostSNI(`*`)'
-      - 'traefik.http.routers.switchfy-catchall.priority=1'
-      - 'traefik.http.routers.switchfy-catchall.entrypoints=https'
-      - 'traefik.http.routers.switchfy-catchall.tls=true'
-      - 'traefik.http.routers.switchfy-catchall.service=switchfy-fallback'
+      - traefik.enable=true
+      - traefik.docker.network=coolify
+      - traefik.http.services.switchfy-nginx.loadbalancer.server.port=80
+      # Catch-all route for any subdomain on *.switchfy.ma and *.staging.switchfy.ma
+      - 'traefik.http.routers.switchfy-catchall.rule=HostRegexp(`{subdomain:[a-z0-9-]+}.switchfy.ma`) || HostRegexp(`{subdomain:[a-z0-9-]+}.staging.switchfy.ma`)'
+      - traefik.http.routers.switchfy-catchall.priority=1
+      - traefik.http.routers.switchfy-catchall.entrypoints=https
+      - traefik.http.routers.switchfy-catchall.tls=true
+      - traefik.http.routers.switchfy-catchall.service=switchfy-nginx
 
 networks:
   switchfy-net:
     driver: bridge
   coolify:
-    external: true # ← reference Coolify's existing network
+    external: true
